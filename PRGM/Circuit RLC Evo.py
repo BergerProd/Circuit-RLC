@@ -8,83 +8,82 @@ from math import sqrt,exp
 import numpy as np
 import time as tm
 
+#Constantes Du Circuit
+L = 0.01
+C = 0.00001
+R=[160,63,3]
+W0 = 1/sqrt(L*C)
+q0 = 0.0001
+
+
 #########################
 #Resolution Regime Libre#
 #########################
 
 #Méthode Euler
-def Qape(n):
+def Euler_Aperiodique(n):
     start = tm.time()
     h=(0.01-0)/n
     t,y,z=0,0.0001,0
-    T1=[0]
-    Y1=[0.0001]
-    Z1=[0]
-    L = 0.01
-    C = 0.00001
-    R = 160
-    W0 = 1/sqrt(L*C)
-    Q = (1/R)*sqrt(L/C) #Ici Q=0,2 environ, cas d'un regime Aperiodique
+    Teuler=[0]
+    Yeuler_ape=[0.0001]
+    Zeuler_ape=[0]
+    R0 = R[0]
+    Q = (1/R0)*sqrt(L/C) #Ici Q=0,2 environ, cas d'un regime Aperiodique
     for i in range (n):
         t,y,z=t+h,y+h*z,z+h*(-((W0/Q)*z)-(W0**2)*y)
-        T1.append(t)
-        Y1.append(y)
-        Z1.append(z)
+        Teuler.append(t)
+        Yeuler_ape.append(y)
+        Zeuler_ape.append(z)
     end = tm.time()
     print ("Euler Aperiodique =",end - start)
-    global T1,Y1,Z1     #globalisation des listes pour les tracer après
+    global Teuler,Yeuler_ape,Zeuler_ape    #globalisation des listes pour les tracer après
 
 # W0 vaut environ 3162 rad/s, donc T = 0.002 s
 # on met donc un intervalle de 5 périodes environ
 # alors ti = 0, tf = 0,01
-Qape(10000)
+Euler_Aperiodique(10000)
 
-def Qcrit(n):
+
+def Euler_Critique(n):
     start = tm.time()
     h=(0.01-0)/n
     t,y,z=0,0.0001,0
-    T2=[0]
-    Y2=[0.0001]
-    Z2=[0]
-    L = 0.01
-    C = 0.00001
-    R = 63
-    W0 = 1/sqrt(L*C)
-    Q = (1/R)*sqrt(L/C) #Ici Q=0,5, cas du regime Critique
+    Teuler_crit=[0]
+    Yeuler_crit=[0.0001]
+    Zeuler_crit=[0]
+    R1 = R[1]
+    Q = (1/R1)*sqrt(L/C) #Ici Q=0,5, cas du regime Critique
     for i in range (n):
         t,y,z=t+h,y+h*z,z+h*(-((W0/Q)*z)-(W0**2)*y)
-        T2.append(t)
-        Y2.append(y)
-        Z2.append(z)
+        Teuler_crit.append(t)
+        Yeuler_crit.append(y)
+        Zeuler_crit.append(z)
     end = tm.time()
     print("Euler Critique =",end-start)
-    global Y2,Z2
+    global Yeuler_crit,Zeuler_crit,Teuler_crit
 
-Qcrit(10000)
+Euler_Critique(10000)
 
-def Qpseu(n):
+def Euler_Pseudo(n):
     start = tm.time()
     h=(0.01-0)/n
     t,y,z=0,0.0001,0
-    T3=[0]
-    Y3=[0.0001]
-    Z3=[0]
-    L = 0.01
-    C = 0.00001
-    R = 3
-    W0 = 1/sqrt(L*C)
-    Q = (1/R)*sqrt(L/C) #Q=10,5, Cas du regime Pseudo - Periodique
+    Teuler_pseudo=[0]
+    Yeuler_pseudo=[0.0001]
+    Zeuler_pseudo=[0]
+    R2 = R[2]
+    Q = (1/R2)*sqrt(L/C) #Q=10,5, Cas du regime Pseudo - Periodique
     for i in range (n):
         t,y,z=t+h,y+h*z,z+h*(-((W0/Q)*z)-(W0**2)*y)
-        T3.append(t)
-        Y3.append(y)
-        Z3.append(z)
+        Teuler_pseudo.append(t)
+        Yeuler_pseudo.append(y)
+        Zeuler_pseudo.append(z)
     end = tm.time()
     print("Euler Pseudo - Periodique = ",end-start)
-    global Y3,Z3
+    global Yeuler_pseudo,Zeuler_pseudo,Teuler_pseudo
 
-# Test pour Q=10000
-Qpseu(10000)
+Euleur_Pseudo(10000)
 
 #Méthode odeint
 
@@ -93,121 +92,99 @@ def FuncSpi(q,T):
 # définition de la fonction pour odeint selon discretisation du problème
 # Eq differentielle du 2nd Ordre, alors retour d'un vecteur
 
-def Qape_ode(n):
+
+def Ode_Aperiodique(n):
     start = tm.time()
-    L = 0.01
-    C = 0.00001
-    R = 160
-    W0 = 1/sqrt(L*C)
-    Q = (1/R)*sqrt(L/C)
-    global W0,Q
-    Ta=np.linspace(0,0.01,n+1)
-    ape=spi.odeint(FuncSpi,(0.0001,0),Ta)
-    Yape_ode=ape[:,0]
+    R0 = R[0]
+    Q = (1/R0)*sqrt(L/C)
+    global Q
+    Tode_ape=np.linspace(0,0.01,n+1)
+    ape=spi.odeint(FuncSpi,(0.0001,0),Tode_ape)
+    Yode_ape=ape[:,0]
     end = tm.time()
     print("Odeint Critique = ",end-start)
-    global Yape_ode,Ta
+    global Yode_ape,Tode_ape
 
 #On defini n=10000 pour meilleure précision
-Qape_ode(10000)
+Ode_Aperiodique(10000)
 
-def Qcrit_ode(n):
+def Ode_Critique(n):
     start = tm.time()
-    L = 0.01
-    C = 0.00001
-    R = 63
-    W0 = 1/sqrt(L*C)
-    Q = (1/R)*sqrt(L/C)
-    global W0,Q
-    Tc=np.linspace(0,0.01,n+1)
-    crit=spi.odeint(FuncSpi,(0.0001,0),Tc)
-    Ycrit_ode=crit[:,0]
+    R1= R[1]
+    Q = (1/R1)*sqrt(L/C)
+    global Q
+    Tode_crit=np.linspace(0,0.01,n+1)
+    crit=spi.odeint(FuncSpi,(0.0001,0),Tode_crit)
+    Yode_crit=crit[:,0]
     end = tm.time()
     print("Odeint Critique = ",end-start)
-    global Ycrit_ode,Tc
+    global Yode_crit,Tode_crit
 
-Qcrit_ode(10000)
+Ode_Critique(10000)
 
-
-def Qpseudo_ode(n):
+def Ode_Pseudo(n):
     start = tm.time()
-    L = 0.01
-    C = 0.00001
-    R = 3
-    W0 = 1/sqrt(L*C)
-    Q = (1/R)*sqrt(L/C)
-    global W0,Q
-    Tp=np.linspace(0,0.01,n+1)
-    pseudo=spi.odeint(FuncSpi,(0.0001,0),Tp)
-    Ypseudo_ode=pseudo[:,0]
+    R2 = R[2]
+    Q = (1/R2)*sqrt(L/C)
+    global Q
+    Tode_pseudo=np.linspace(0,0.01,n+1)
+    pseudo=spi.odeint(FuncSpi,(0.0001,0),Tode_pseudo)
+    Yode_pseudo=pseudo[:,0]
     end = tm.time()
     print("Odeint Pseudo Periodique =",end-start)
-    global Ypseudo_ode,Tp
+    global Yode_pseudo,Tode_pseudo
 
-Qpseudo_ode(10000)
+Ode_Pseudo(10000)
 
-#Solution Exacte
 def Exacte_ape(n):
     start = tm.time()
-    L = 0.01
-    C = 0.00001
-    R = 160
-    q0 = 0.0001
-    W0 = 1/sqrt(L*C)
-    Q = (1/R)*sqrt(L/C)
+    R0 = R[0]
+    Q = (1/R0)*sqrt(L/C)
     r1=(-W0/(2*Q))+ (W0*sqrt((1/(2*Q)**2-1)))
     r2=(-W0/(2*Q)) - (W0*sqrt((1/(2*Q)**2-1)))
     A=-(q0*r2)/(r1-r2)
     B=(q0*r2)/(r1-r2)
-    Yape_exa=[]
-    T=np.linspace(0,0.01,n+1)
-    for i in T:
+    Yexa_ape=[]
+    Texa_ape=np.linspace(0,0.01,n+1)
+    for i in Texa_ape:
         q = A*(exp(r1*i))+B*(exp(r2*i))
-        Yape_exa.append(q)
+        Yexa_ape.append(q)
     end = tm.time()
     print("Exacte Aperiodique = ",end-start)
-    global Yape_exa
+    global Yexa_ape,Texa_ape
 
 Exacte_ape(10000)
 
 def Exacte_crit(n):
     start = tm.time()
-    L = 0.01
-    C = 0.00001
-    R = 63
-    q0 = 0.0001
-    W0 = 1/sqrt(L*C)
-    Q = (1/R)*sqrt(L/C)
+    R1 = R[1]
+    Q = (1/R1)*sqrt(L/C)
     A = q0
     B = W0*q0
-    Ycrit_exa=[]
-    T=np.linspace(0,0.01,n+1)
-    for i in T:
+    Yexa_crit=[]
+    Texa_crit=np.linspace(0,0.01,n+1)
+    for i in Texa_crit:
         q = (A+B*i)*(exp(-W0*i))
-        Ycrit_exa.append(q)
+        Yexa_crit.append(q)
     end = tm.time()
     print("Exacte Critique = ",end-start)
-    global Ycrit_exa
+    global Yexa_crit,Texa_crit
 
 Exacte_crit(10000)
 
 def Exacte_pseudo(n):
     start = tm.time()
-    L = 0.01
-    C = 0.00001
-    R = 3
-    q0 = 0.0001
-    W0 = 1/sqrt(L*C)
-    Q = (1/R)*sqrt(L/C)
+    R2 = R[2]
+    Q = (1/R2)*sqrt(L/C)
     W = W0 * sqrt(1-(1/(2*Q))**2)
-    Ypseudo_exa=[]
-    T=np.linspace(0,0.01,n+1)
-    for i in T:
+    Yexa_pseudo=[]
+    Texa_pseudo=np.linspace(0,0.01,n+1)
+    for i in Texa_pseudo:
         q = q0*(exp(-W0/(2*Q)*i))*(np.cos(W*i)+(1/((2*Q)*sqrt(1-((1/(2*Q))**2))))*np.sin(W*i))
-        Ypseudo_exa.append(q)
+        Yexa_pseudo.append(q)
     end = tm.time()
     print ("Exacte Pseudo Periodique =",end-start)
-    global Ypseudo_exa
+    global Yexa_pseudo,Texa_pseudo
 
 Exacte_pseudo(10000)
 
@@ -216,9 +193,9 @@ Exacte_pseudo(10000)
 #Pour un n=10000 qui est assez élevé, les courbes se superposent quasiment
 
 def Superpo_ape():
-    p1=plt.plot(T1,Y1,"r",label="Euler")
-    p2=plt.plot(Ta,Yape_ode,"b",label="Odeint")
-    p3=plt.plot(Ta,Yape_exa,"g",label="Exacte")
+    p1=plt.plot(Teuler,Yeuler_ape,"r",label="Euler")
+    p2=plt.plot(Tode_ape,Yode_ape,"b",label="Odeint")
+    p3=plt.plot(Texa_ape,Yexa_ape,"g",label="Exacte")
     plt.xlabel("Temps")
     plt.ylabel("Charge")
     plt.legend()
@@ -227,9 +204,9 @@ def Superpo_ape():
     plt.savefig("Aperiodique Libre.png")
 
 def Superpo_crit():
-    p1=plt.plot(T1,Y2,"r",label="Euler")
-    p2=plt.plot(Tc,Ycrit_ode,"b",label="Odeint")
-    p3=plt.plot(Tc,Ycrit_exa,"g",label="Exacte")
+    p1=plt.plot(Teuler_crit,Yeuler_crit,"r",label="Euler")
+    p2=plt.plot(Tode_crit,Yode_crit,"b",label="Odeint")
+    p3=plt.plot(Texa_crit,Yexa_crit,"g",label="Exacte")
     plt.xlabel("Temps")
     plt.legend()
     plt.ylabel("Charge")
@@ -238,9 +215,9 @@ def Superpo_crit():
     plt.savefig("Critique Libre.png")
 
 def Superpo_pseu():
-    p1=plt.plot(T1,Y3,"r")
-    p2=plt.plot(Tp,Ypseudo_ode,"b")
-    p3=plt.plot(Tp,Ypseudo_exa,"g")
+    p1=plt.plot(Teuler_pseudo,Yeuler_pseudo,"r",label="Euler")
+    p2=plt.plot(Tode_pseudo,Yode_pseudo,"b",label="Odeint")
+    p3=plt.plot(Texa_pseudo,Yexa_pseudo,"g",label="Exacte")
     plt.grid(True)
     plt.legend()
     plt.xlabel("Temps")

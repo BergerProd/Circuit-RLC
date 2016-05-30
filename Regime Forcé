@@ -1,0 +1,105 @@
+import matplotlib.pyplot as plt
+import scipy.integrate as spi
+from math import sqrt,exp
+import numpy as np
+import time as tm
+
+L = 0.01
+C = 0.00001
+R = [160,63,3]
+W0 = 1/sqrt(L*C)
+
+
+def Euler_Aperiodique_Force(n):
+    start = tm.time()
+    h=(0.01-0)/n
+    t,y,z=0,0.0001,0
+    Teuler_ape_force=[0]
+    Yeuler_ape_force=[0.0001]
+    Zeuler_ape_force=[0]
+    R0=R[0]
+    Q = (1/R0)*sqrt(L/C)
+    A=10    #Amplitude de 10V
+    W=(2*np.pi)/0.01 #on choisi f=100Hz
+    for i in range (n):
+        t,y,z=t+h,y+h*z,z+h*(-((W0/Q)*z)-(W0**2)*y+A*np.cos(W*t))
+        Teuler_ape_force.append(t)
+        Yeuler_ape_force.append(y)
+        Zeuler_ape_force.append(z)
+    end = tm.time()
+    print ("Euler Aperiodique Forcé=",end - start)
+    global Teuler_ape_force,Yeuler_ape_force,Zeuler_ape_force     #globalisation des listes pour les tracer après
+
+
+def Euler_Critique_Force(n):
+    start = tm.time()
+    h=(0.01-0)/n
+    t,y,z=0,0.0001,0
+    Teuler_crit_force=[0]
+    Yeuler_crit_force=[0.0001]
+    Zeuler_crit_force=[0]
+    R1=R[1]
+    Q = (1/R1)*sqrt(L/C)
+    A=10
+    W=(2*np.pi)/0.01
+    for i in range (n):
+        t,y,z=t+h,y+h*z,z+h*(-((W0/Q)*z)-(W0**2)*y+A*np.cos(W*t))
+        Teuler_crit_force.append(t)
+        Yeuler_crit_force.append(y)
+        Zeuler_crit_force.append(z)
+    end = tm.time()
+    print ("Euler Critique Forcé =",end - start)
+    global Teuler_crit_force,Yeuler_crit_force,Zeuler_crit_force     #globalisation des listes pour les tracer après
+
+def Euler_Pseudo_Force(n):
+    start = tm.time()
+    h=(0.01-0)/n
+    t,y,z=0,0.0001,0
+    Teuler_pseudo_force=[0]
+    Yeuler_pseudo_force=[0.0001]
+    Zeuler_pseudo_force=[0]
+    R2=R[2]
+    Q = (1/R2)*sqrt(L/C)
+    A=10
+    W=(2*np.pi)/0.01
+    for i in range (n):
+        t,y,z=t+h,y+h*z,z+h*(-((W0/Q)*z)-(W0**2)*y+A*np.cos(W*t))
+        Teuler_pseudo_force.append(t)
+        Yeuler_pseudo_force.append(y)
+        Zeuler_pseudo_force.append(z)
+    end = tm.time()
+    print ("Euler Pseudo-Periodique Forcé =",end - start)
+    global Teuler_pseudo_force,Yeuler_pseudo_force,Zeuler_pseudo_force     #globalisation des listes pour les tracer après
+
+def Superpo_ape_Force():
+    p1=plt.plot(Teuler_ape_force,Yeuler_ape_force,"r",label="Euler")
+    p2=plt.plot(Tode_ape,Yode_ape,"b",label="Odeint")
+    p3=plt.plot(Texa_ape,Yexa_ape,"g",label="Exacte")
+    plt.xlabel("Temps")
+    plt.ylabel("Charge")
+    plt.legend()
+    plt.grid(True)
+    plt.title("Aperiodique Q<0.5 Forcé")
+    plt.savefig("Aperiodique Forcé.png")
+
+def Superpo_crit_Force():
+    p1=plt.plot(Teuler_crit_force,Yeuler_crit_force,"r",label="Euler")
+    p2=plt.plot(Tode_crit,Yode_crit,"b",label="Odeint")
+    p3=plt.plot(Texa_crit,Yexa_crit,"g",label="Exacte")
+    plt.xlabel("Temps")
+    plt.legend()
+    plt.ylabel("Charge")
+    plt.grid(True)
+    plt.title("Critique Q=0.5 Forcé")
+    plt.savefig("Critique Forcé.png")
+
+def Superpo_pseu_Force():
+    p1=plt.plot(Teuler_pseudo_force,Yeuler_pseudo_force,"r",label="Euler")
+    p2=plt.plot(Tode_pseudo,Yode_pseudo,"b",label="Odeint")
+    p3=plt.plot(Texa_pseudo,Yexa_pseudo,"g",label="Exacte")
+    plt.grid(True)
+    plt.legend()
+    plt.xlabel("Temps")
+    plt.ylabel("Charge")
+    plt.title("Pseudo Periodique Q>0.5 Forcé")
+    plt.savefig("Pseudo Periodique Forcé.png")
