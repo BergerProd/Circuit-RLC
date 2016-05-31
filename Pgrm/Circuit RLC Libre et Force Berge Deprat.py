@@ -11,9 +11,11 @@ import time as tm
 #Constantes Du Circuit
 L = 0.01
 C = 0.00001
-R=[160,63,3]
-W0 = 1/sqrt(L*C)
-q0 = 0.0001
+R=[160,63,3] #3 valeurs caracatéristiques de R pour avoir les 3 régimes
+W0 = 1/sqrt(L*C) #W0 vaut environ 3162rad/s, alors T=0,002 s
+q0 = 0.0001 #charge initiale
+Wf=(2*np.pi)/0.01 #On choisi f=100Hz
+Amp=10 #Amplitude de 10V
 
 
 #########################
@@ -23,12 +25,12 @@ q0 = 0.0001
 #Méthode Euler
 def Euler_Aperiodique(n):
     start = tm.time()
-    h=(0.01-0)/n
+    h=(0.01-0)/n #tf = 0,01s, soit 5 périodes
     t,y,z=0,0.0001,0
     Teuler=[0]
     Yeuler_ape=[0.0001]
     Zeuler_ape=[0]
-    R0 = R[0]
+    R0 = R[0] #
     Q = (1/R0)*sqrt(L/C) #Ici Q=0,2 environ, cas d'un regime Aperiodique
     for i in range (n):
         t,y,z=t+h,y+h*z,z+h*(-((W0/Q)*z)-(W0**2)*y)
@@ -36,13 +38,13 @@ def Euler_Aperiodique(n):
         Yeuler_ape.append(y)
         Zeuler_ape.append(z)
     end = tm.time()
-    print ("Euler Aperiodique =",end - start)
+    print ("Euler Aperiodique =",end - start) #temps d'exécution
     global Teuler,Yeuler_ape,Zeuler_ape    #globalisation des listes pour les tracer après
 
 # W0 vaut environ 3162 rad/s, donc T = 0.002 s
 # on met donc un intervalle de 5 périodes environ
 # alors ti = 0, tf = 0,01
-Euler_Aperiodique(10000)
+#Euler_Aperiodique(10000)
 
 
 def Euler_Critique(n):
@@ -63,7 +65,7 @@ def Euler_Critique(n):
     print("Euler Critique =",end-start)
     global Yeuler_crit,Zeuler_crit,Teuler_crit
 
-Euler_Critique(10000)
+#Euler_Critique(10000)
 
 def Euler_Pseudo(n):
     start = tm.time()
@@ -83,9 +85,9 @@ def Euler_Pseudo(n):
     print("Euler Pseudo - Periodique = ",end-start)
     global Yeuler_pseudo,Zeuler_pseudo,Teuler_pseudo
 
-Euleur_Pseudo(10000)
+#Euler_Pseudo(10000)
 
-#Méthode odeint
+#Méthode Odeint
 
 def FuncSpi(q,T):
     return (q[1],-(W0**2)*q[0]-(W0/Q)*q[1])
@@ -106,7 +108,7 @@ def Ode_Aperiodique(n):
     global Yode_ape,Tode_ape
 
 #On defini n=10000 pour meilleure précision
-Ode_Aperiodique(10000)
+#Ode_Aperiodique(10000)
 
 def Ode_Critique(n):
     start = tm.time()
@@ -120,7 +122,7 @@ def Ode_Critique(n):
     print("Odeint Critique = ",end-start)
     global Yode_crit,Tode_crit
 
-Ode_Critique(10000)
+#Ode_Critique(10000)
 
 def Ode_Pseudo(n):
     start = tm.time()
@@ -134,7 +136,10 @@ def Ode_Pseudo(n):
     print("Odeint Pseudo Periodique =",end-start)
     global Yode_pseudo,Tode_pseudo
 
-Ode_Pseudo(10000)
+#Ode_Pseudo(10000)
+
+
+#Méthode Exacte
 
 def Exacte_ape(n):
     start = tm.time()
@@ -153,7 +158,7 @@ def Exacte_ape(n):
     print("Exacte Aperiodique = ",end-start)
     global Yexa_ape,Texa_ape
 
-Exacte_ape(10000)
+#Exacte_ape(10000)
 
 def Exacte_crit(n):
     start = tm.time()
@@ -170,7 +175,7 @@ def Exacte_crit(n):
     print("Exacte Critique = ",end-start)
     global Yexa_crit,Texa_crit
 
-Exacte_crit(10000)
+#Exacte_crit(10000)
 
 def Exacte_pseudo(n):
     start = tm.time()
@@ -229,3 +234,144 @@ def Superpo_pseu():
 ##########################
 #Résolution Régime Forcé#
 #########################
+
+def Euler_Aperiodique_Force(n):
+    start = tm.time()
+    h=(0.01-0)/n
+    t,y,z=0,0.0001,0
+    Teuler_ape_force=[0]
+    Yeuler_ape_force=[0.0001]
+    Zeuler_ape_force=[0]
+    R0=R[0] #Choisir R pour régime Aperiodique
+    Q = (1/R0)*sqrt(L/C) #Q=0,2
+    for i in range (n):
+        t,y,z=t+h,y+h*z,z+h*(-((W0/Q)*z)-(W0**2)*y+Amp*np.cos(Wf*t)) #selon nouvelle discretisation du probleme avec regime force
+        Teuler_ape_force.append(t)
+        Yeuler_ape_force.append(y)
+        Zeuler_ape_force.append(z)
+    end = tm.time()
+    print ("Euler Aperiodique Forcé=",end - start) #temps d'exécution
+    global Teuler_ape_force,Yeuler_ape_force,Zeuler_ape_force     #globalisation des listes pour les tracer après
+
+#Euler_Aperiodique_Force(10000)
+
+def Euler_Critique_Force(n):
+    start = tm.time()
+    h=(0.01-0)/n
+    t,y,z=0,0.0001,0
+    Teuler_crit_force=[0]
+    Yeuler_crit_force=[0.0001]
+    Zeuler_crit_force=[0]
+    R1=R[1]
+    Q = (1/R1)*sqrt(L/C)
+    for i in range (n):
+        t,y,z=t+h,y+h*z,z+h*(-((W0/Q)*z)-(W0**2)*y+Amp*np.cos(Wf*t))
+        Teuler_crit_force.append(t)
+        Yeuler_crit_force.append(y)
+        Zeuler_crit_force.append(z)
+    end = tm.time()
+    print ("Euler Critique Forcé =",end - start)
+    global Teuler_crit_force,Yeuler_crit_force,Zeuler_crit_force     #globalisation des listes pour les tracer après
+
+#Euler_Critique_Force(10000)
+
+def Euler_Pseudo_Force(n):
+    start = tm.time()
+    h=(0.01-0)/n
+    t,y,z=0,0.0001,0
+    Teuler_pseudo_force=[0]
+    Yeuler_pseudo_force=[0.0001]
+    Zeuler_pseudo_force=[0]
+    R2=R[2]
+    Q = (1/R2)*sqrt(L/C)
+    for i in range (n):
+        t,y,z=t+h,y+h*z,z+h*(-((W0/Q)*z)-(W0**2)*y+Amp*np.cos(Wf*t))
+        Teuler_pseudo_force.append(t)
+        Yeuler_pseudo_force.append(y)
+        Zeuler_pseudo_force.append(z)
+    end = tm.time()
+    print ("Euler Pseudo-Periodique Forcé =",end - start)
+    global Teuler_pseudo_force,Yeuler_pseudo_force,Zeuler_pseudo_force     #globalisation des listes pour les tracer après
+
+#Euler_Pseudo_Force(10000)
+
+
+def FuncSpiForce(q,T):
+    return (q[1],-(W0**2)*q[0]-(W0/Q)*q[1]+ Amp*np.cos(Wf*T))
+#nouvelle discrétisation du probleme
+
+def Ode_Aperiodique_Force(n):
+    start = tm.time()
+    R0 = R[0]
+    Q = (1/R0)*sqrt(L/C)
+    global Q #défini Q commme var globale pour que FuncSpiForce le prenne en compte
+    Tode_ape_force=np.linspace(0,0.01,n+1) #n+1 pour avoir n termes
+    ape=spi.odeint(FuncSpiForce,(0.0001,0),Tode_ape_force) #méthode odeint avec valeurs initiales
+    Yode_ape_force=ape[:,0]
+    end = tm.time()
+    print("Odeint Aperiodique Forcé = ",end-start)
+    global Yode_ape_force,Tode_ape_force
+
+#Ode_Aperiodique_Force(10000)
+
+def Ode_Critique_Force(n):
+    start = tm.time()
+    R1 = R[1]
+    Q = (1/R1)*sqrt(L/C)
+    global Q
+    Tode_crit_force=np.linspace(0,0.01,n+1)
+    ape=spi.odeint(FuncSpiForce,(0.0001,0),Tode_crit_force)
+    Yode_crit_force=ape[:,0]
+    end = tm.time()
+    print("Odeint Critique Forcé = ",end-start)
+    global Yode_crit_force,Tode_crit_force
+
+def Ode_Pseudo_Force(n):
+    start = tm.time()
+    R2 = R[2]
+    Q = (1/R2)*sqrt(L/C)
+    global Q
+    Tode_pseudo_force=np.linspace(0,0.01,n+1)
+    ape=spi.odeint(FuncSpiForce,(0.0001,0),Tode_pseudo_force)
+    Yode_pseudo_force=ape[:,0]
+    end = tm.time()
+    print("Odeint Pseudo-Periodique Forcé = ",end-start)
+    global Yode_pseudo_force,Tode_pseudo_force
+
+#Ode_Pseudo_Force(10000)
+
+
+#Traçage Courbes
+
+#Regime Aperiodique
+def Superpo_ape_Force():
+    p1=plt.plot(Teuler_ape_force,Yeuler_ape_force,"r",label="Euler")
+    p2=plt.plot(Tode_ape_force,Yode_ape_force,"b",label="Odeint")
+    plt.xlabel("Temps")
+    plt.ylabel("Charge")
+    plt.legend()
+    plt.grid(True)
+    plt.title("Aperiodique Q<0.5 Forcé")
+    plt.savefig("Aperiodique Forcé.png")
+
+#Regime Critique
+def Superpo_crit_Force():
+    p1=plt.plot(Teuler_crit_force,Yeuler_crit_force,"r",label="Euler")
+    p2=plt.plot(Tode_crit_force,Yode_crit_force,"b",label="Odeint")
+    plt.xlabel("Temps")
+    plt.legend()
+    plt.ylabel("Charge")
+    plt.grid(True)
+    plt.title("Critique Q=0.5 Forcé")
+    plt.savefig("Critique Forcé.png")
+
+#Régime Pseudo - Périodique
+def Superpo_pseu_Force():
+    p1=plt.plot(Teuler_pseudo_force,Yeuler_pseudo_force,"r",label="Euler")
+    p2=plt.plot(Tode_pseudo_force,Yode_pseudo_force,"b",label="Odeint")
+    plt.grid(True)
+    plt.legend()
+    plt.xlabel("Temps")
+    plt.ylabel("Charge")
+    plt.title("Pseudo Periodique Q>0.5 Forcé")
+    plt.savefig("Pseudo Periodique Forcé.png")
